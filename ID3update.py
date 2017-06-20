@@ -43,7 +43,7 @@ class Song:
 				print 'genre ',souplist[i].get_text().split(':')[1]
 			elif souplist[i].get_text().split(':')[0].lower() == 'featured artist' or souplist[i].get_text().split(':')[0].lower() == 'featured artists':
 				self.feat = souplist[i].get_text().split(':')[1]
-				print 'artist ',souplist[i].get_text().split(':')[1]
+				print 'featured artist ',souplist[i].get_text().split(':')[1]
 			else:
 				pass
 		self.fetchalbum()
@@ -62,11 +62,13 @@ class Song:
 		browser = mechanize.Browser()
 		browser.set_handle_robots(False)
 		browser.addheaders = [('User-agent','Mozilla')]
-		searchURL = "https://www.google.co.in/search?site=imghp&source=hp&biw=1414&bih=709&q="+self.keyword+urllib2.quote(' album name')
+		searchURL = "https://www.google.co.in/search?site=imghp&source=hp&biw=1414&bih=709&q="+urllib2.quote(self.title+' '+self.artist+' album name')
 		html = browser.open(searchURL)
 		soup = bs(html, 'html.parser')
 		for i in soup.findAll(attrs={'class':'_B5d'}):
-			print i.get_text()
+			if self.album == 'Unknown':
+				self.album = i.get_text()
+			break
 
 	def updateID3(self):		
 		audiofile = eyed3.load(self.filename)
@@ -96,7 +98,11 @@ class Song:
 
 		audiofile.tag.images.set(3, open(self.albumart,'rb').read(), 'image/'+self.aaformat)
 		audiofile.tag.save()
-		os.rename(self.filename, 'downloadedSongs/'+self.title+'.mp3')
+		if not os.path.isfile('downloadedSongs/'+title+'.mp3'):
+			os.rename(self.filename, 'downloadedSongs/'+title+'.mp3')
+		else:
+			newTitle = raw_input('Similar file already exits, enter new file name: ')
+			os.rename(self.filename, 'downloadedSongs/'+newTitle+'.mp3')
 		print 'update complete'
 		
 		os.remove(self.albumart)

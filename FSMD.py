@@ -106,11 +106,13 @@ if __name__ == '__main__':
 	keyword = title + ' ' + album + ' ' + artist
 
 	#function calls
-	parsed = search(keyword)
-	grabLinks(parsed)
-	index = showSearchResults()
-	downloadSong(index)
-	aapath = downloadAart(keyword)
-	imgFormat = aapath.split('.')[-1]
-	update(string.capwords(title),string.capwords(artist), keyword, filename, aapath, imgFormat)
-
+	try:
+		parsed = search(keyword)
+		grabLinks(parsed)
+		index = showSearchResults()
+		downloadSong(index)
+		aapath = downloadAart(keyword)
+		imgFormat = aapath.split('.')[-1]
+		update(string.capwords(title),string.capwords(artist), keyword, filename, aapath, imgFormat)
+	except:
+		print 'Some error occured during the process'
