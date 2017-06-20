@@ -14,7 +14,7 @@ class Song:
 		self.keyword = urllib2.quote(keyword)
 		self.albumart = albumart
 		self.aaformat = aaformat
-		self.album = 'Unknown'
+		self.album = 'Single'
 		self.artist = artist
 		self.title = title
 		self.feat = ' '
@@ -66,7 +66,7 @@ class Song:
 		html = browser.open(searchURL)
 		soup = bs(html, 'html.parser')
 		for i in soup.findAll(attrs={'class':'_B5d'}):
-			if self.album == 'Unknown':
+			if self.album == 'Single':
 				self.album = i.get_text()
 			break
 

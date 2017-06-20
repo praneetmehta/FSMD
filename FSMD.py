@@ -100,7 +100,7 @@ def update(title,artist, keyword, filename, aapath, imgFormat):
 if __name__ == '__main__':
 	#user input for song to download
 	filename = ' '
-	title = raw_input('Enter song title: ')
+	title = raw_input('Enter song title (will also be set as final title and filename) : ')
 	artist = raw_input('Enter artist name: ')
 	album = raw_input('Enter album name: ')
 	keyword = title + ' ' + album + ' ' + artist
