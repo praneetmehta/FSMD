@@ -25,7 +25,6 @@ class AlbumArt:
 		header={'User-Agent':"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"}
 		searchURL = "https://www.google.co.in/search?q="+self.keyword+"&source=lnms&tbm=isch"
 		soup = bs(urllib2.urlopen(urllib2.Request(searchURL,headers=header)),'html.parser')
-		print searchURL
 		self.findImg(soup)
 
 
@@ -41,7 +40,6 @@ class AlbumArt:
 				pass
 			a = self.linklist[imageindex]
 			self.link =json.loads(a.text)["ou"]
-			print self.link
 		except:
 			self.link = self.defaultlink
 		# if attemptcount = 0 download is called from the main script or else it has to invoked from here
@@ -64,22 +62,24 @@ class AlbumArt:
 		    outfile.write(r.content)
 		print 'album art download complete'
 		self.imgFormat = imghdr.what(urllib2.unquote(self.keyword))
-		print self.imgFormat
 		if self.imgFormat is not None:
-			self.attachFormat()
+			aaformat = self.attachFormat()
+			return aaformat
 		else:
+			os.remove(urllib2.unquote(self.keyword))
 			self.attemptcount += 1
 			if self.attemptcount < 5:
 				self.findImg(' ')
 			else:
 				self.link = self.defaultlink
 				self.download()
+
 		
 	def attachFormat(self):
 		os.rename(urllib2.unquote(self.keyword), urllib2.unquote(self.keyword)+'.'+self.imgFormat)
 		print 'format attached as ',self.imgFormat
-		name = urllib2.unquote(self.keyword)+'.'+self.imgFormat
-		return name
+		return urllib2.unquote(self.keyword)+'.'+self.imgFormat
+		
 		
 		
 # newimg = AlbumArt('pehli dafa @ @atif aslma')
