@@ -92,10 +92,11 @@ class Song:
 			audiofile.tag.title = unicode(title, "utf-8")
 		except:
 			audiofile.tag.title = title
+
 		try:
-			audiofile.tag.genres = unicode(self.genre, "utf-8")
+			audiofile.tag.genre = unicode(self.genre, "utf-8")
 		except:
-			audiofile.tag.genres = self.genre
+			audiofile.tag.genre = self.genre
 
 		audiofile.tag.images.set(3, open(self.albumart,'rb').read(), 'image/'+self.aaformat)
 		audiofile.tag.save()
