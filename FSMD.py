@@ -16,7 +16,7 @@ songs = []
 
 #searching youtube for song
 def search(keyword):
-	search = urllib2.quote(keyword)
+	search = urllib2.quote(('').join(keyword.split('@')))
 	url = "https://www.youtube.com/results?search_query="+search
 	response = urllib2.urlopen(url)
 	html = response.read()
@@ -93,26 +93,26 @@ def downloadAart(keyword):
 	aapath = newImg.download()
 	return aapath
 
-def update(title,artist, keyword, filename, aapath, imgFormat):
-	newSong = Song(title,artist, filename, keyword, aapath, imgFormat)
+def update(keyword, filename, aapath, imgFormat):
+	newSong = Song(keyword, filename, aapath, imgFormat)
 	newSong.updateID3();
 
 if __name__ == '__main__':
 	#user input for song to download
 	filename = ' '
-	title = raw_input('Enter song title (will also be set as final title and filename) : ')
-	artist = raw_input('Enter artist name: ')
-	album = raw_input('Enter album name: ')
-	keyword = title + ' ' + album + ' ' + artist
+	title = raw_input('Enter song title (will also be set as final title and filename:\n>>> ')
+	artist = raw_input('Enter artist name:\n>>> ')
+	album = raw_input('Enter album name:\n>>> ')
+	keyword = title + ' @' + album + ' @' + artist
 
 	#function calls
-	try:
-		parsed = search(keyword)
-		grabLinks(parsed)
-		index = showSearchResults()
-		downloadSong(index)
-		aapath = downloadAart(keyword)
-		imgFormat = aapath.split('.')[-1]
-		update(string.capwords(title),string.capwords(artist), keyword, filename, aapath, imgFormat)
-	except:
-		print 'Some error occured during the process'
+	# try:
+	parsed = search(keyword)
+	grabLinks(parsed)
+	index = showSearchResults()
+	downloadSong(index)
+	aapath = downloadAart(keyword)
+	imgFormat = aapath.split('.')[-1]
+	update(string.capwords(keyword), filename, aapath, imgFormat)
+	# except:
+	# 	print '\n Some error occured during the process. Please try again'
