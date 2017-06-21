@@ -9,14 +9,15 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 class Song:
-	def __init__(self, title, artist, filename, keyword, albumart, aaformat):
+	def __init__(self, keyword, filename, albumart, aaformat):
+		self.info = keyword.split('@')
 		self.filename = filename.encode('utf-8')
-		self.keyword = urllib2.quote(keyword)
+		self.keyword = urllib2.quote(('').join(self.info))
 		self.albumart = albumart
 		self.aaformat = aaformat
 		self.album = 'Single'
-		self.artist = artist
-		self.title = title
+		self.artist = self.info[2]
+		self.title = self.info[0]
 		self.feat = ' '
 		self.genre = 'Unknown'
 		self.fetchID3()
@@ -25,7 +26,7 @@ class Song:
 		browser = mechanize.Browser()
 		browser.set_handle_robots(False)
 		browser.addheaders = [('User-agent','Mozilla')]
-		searchURL = "https://www.google.co.in/search?site=imghp&source=hp&biw=1414&bih=709&q="+self.keyword+urllib2.quote(' song')
+		searchURL = "https://www.google.co.in/search?site=imghp&source=hp&biw=1414&bih=709&q="+urllib2.quote(self.title+' '+self.artist+' song')
 		print searchURL
 		html = browser.open(searchURL)
 		soup = bs(html, 'html.parser')
