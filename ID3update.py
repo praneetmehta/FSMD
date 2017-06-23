@@ -12,7 +12,6 @@ class Song:
 	def __init__(self, keyword, filename, albumart, aaformat, dd='downloadedSongs/'):
 		self.info = keyword.split('@')
 		self.filename = filename.encode('utf-8')
-		print 'self.filename ',self.filename
 		self.keyword = urllib2.quote(('').join(self.info))
 		self.albumart = albumart
 		self.aaformat = aaformat
@@ -93,11 +92,11 @@ class Song:
 		audiofile.tag.images.set(3, open(self.albumart,'rb').read(), 'image/'+self.aaformat)
 		audiofile.tag.save()
 		if not os.path.isfile('downloadedSongs/'+title+'.mp3'):
-			os.rename(self.filename, self.dd+title+'.mp3')
+			os.rename(self.filename, self.dd+title.rstrip()+'.mp3')
 		else:
 			newTitle = raw_input('Similar file already exits, enter new file name: ')
-			os.rename(self.filename, self.dd+newTitle+'.mp3')
-		print 'update complete'
+			os.rename(self.filename, self.dd+newTitle.rstrip()+'.mp3')
+		print 'update complete\n\n'
 		
 		os.remove(self.albumart)
 # newsong = Song('Rockabye','Rockabye.mp3', 'rockabye','rockabye   album art.jpeg','jpeg')
