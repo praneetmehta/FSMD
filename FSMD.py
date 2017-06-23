@@ -1,21 +1,22 @@
 from __future__ import unicode_literals
 from __future__ import division
 import urllib2
-from bs4 import BeautifulSoup as bs
-import youtube_dl as ydl
-import json
-import math
-import eyed3
-from GIS import AlbumArt as gimg
-from ID3update import Song
-import sys
+from bs4 import BeautifulSoup as bs #module for parsing html
+import youtube_dl as ydl #youtube_dl for downloading youtube videos and mp3
+from GIS import AlbumArt as gimg #custom module for fetching album arts
+from ID3update import Song #custom module for fetchid metadata and updating the downloaded file
 import string
+import csv
+import os
+import sys
 reload(sys)
-sys.setdefaultencoding('utf-8')
-songs = []
+sys.setdefaultencoding('utf8')
+
+
 
 #searching youtube for song
 def search(keyword):
+	print 'search keyword --- ', keyword
 	search = urllib2.quote(('').join(keyword.split('@')))
 	url = "https://www.youtube.com/results?search_query="+search
 	response = urllib2.urlopen(url)
@@ -26,19 +27,28 @@ def search(keyword):
 
 #get all links on page1 of youtube search
 def grabLinks(parsed):
+	del songs[:]
 	for vid in parsed.findAll(attrs={'class':'yt-uix-tile-link'}):
-		songs.append({'title':vid['title'], 'link':vid['href']})
+		if vid.find_next_sibling('span').get_text() == ' - Playlist':
+			pass
+		else:
+			songs.append({'title':vid['title'], 'link':vid['href']})
+
 
 
 #show search results
 def showSearchResults():
-	for i in range(0, len(songs)):
-		try:
-			print i+1,'- ',songs[i]['title']
-		except:
-			pass
-	index = input('which song to download? enter index \t')-1
-	return index
+	if execType == '-b':
+		print 'downloading --- '+songs[0]['title']
+		index = 0
+		return index
+	elif execType == '-d':
+		for i in range(0, len(songs)):
+			try:
+				print i+1,'- ',songs[i]['title']
+			except:
+				pass
+		return input('which song to download? enter index \t')-1
 	
 
 #youtube-dl logger
@@ -56,12 +66,20 @@ class MyLogger(object):
 
 #youtube-dl progress-hook
 def my_hook(d):
-    if d['status'] == 'finished':
-    	global filename
-        filename = d['filename'][:-4]+'mp3'
-        print 'download complete, now downloading album art'
-    else:
-    	print (d['downloaded_bytes']*100)//d['total_bytes'],'%','\t','eta:',d['eta'],'sec'
+	global filename
+	if d['status'] == 'finished':
+		print "d['filename']",d['filename']
+		print filename[-4:]
+		if d['filename'][-4:] == 'webm':
+		# global filename
+			filename = d['filename'][:-4]+'mp3'
+		elif d['filename'][-4:] == '.m4a':
+		# global filename
+			filename = d['filename'][:-3]+'mp3'
+		print filename
+		print 'download complete, now downloading album art'
+	else:
+		print (d['downloaded_bytes']*100)//d['total_bytes'],'%','\t','eta:',d['eta'],'sec'
     
 
 
@@ -93,29 +111,64 @@ def downloadAart(keyword):
 	aapath = newImg.download()
 	return aapath
 
-def update(keyword, filename, aapath, imgFormat):
-	newSong = Song(keyword, filename, aapath, imgFormat)
+def update(keyword, filename, aapath, imgFormat, dd):
+	newSong = Song(keyword, filename, aapath, imgFormat, dd)
 	newSong.updateID3();
 
-if __name__ == '__main__':
-	#user input for song to download
-	filename = ' '
-	title = raw_input('Enter song title (will also be set as final title and filename:\n>>> ')
-	artist = raw_input('Enter artist name:\n>>> ')
-	album = raw_input('Enter album name:\n>>> ')
-	keyword = title + ' @' + album + ' @' + artist
-
-	#function calls
+def execute(keyword, extra=''):
 	try:
-		parsed = search(keyword)
+		parsed = search(keyword+extra)
 		grabLinks(parsed)
 		index = showSearchResults()
 		downloadSong(index)
 		aapath = downloadAart(keyword)
 		imgFormat = aapath.split('.')[-1]
-		update(string.capwords(keyword), filename, aapath, imgFormat)
+		update(string.capwords(keyword), filename, aapath, imgFormat, downloadDirectory)
 	except KeyboardInterrupt:
 		print '\nKeyboard Interrupt. Now exiting'
 		print "\nGood Bye :')"
+		sys.exit()
 	except:
 		print '\nSome unexpected error occured, Pleej try again :P'
+
+if __name__ == '__main__':
+	execType = '-d'
+	songs = []
+	batch = []
+	filename = 'Unknown'
+	downloadDirectory = 'downloadedSongs/'
+
+	try:
+		execType = sys.argv[1]
+		batchCSV = sys.argv[2]
+		if execType == '-b':
+			if os.path.isfile(batchCSV):
+				with open(batchCSV, 'rb') as csvfile:
+					batchlist = csv.DictReader(csvfile)
+					for row in batchlist:
+						batch.append(row['Title'] + ' @' + row['Artist'] + ' @' + row['Album'])
+				for batchitem in batch:
+					print 'batchitem --- '+batchitem
+					execute(batchitem, ' official audio')
+			else:
+				print 'csv '+ batchCSV +' does not exist'
+			# print batchlist.types
+		else:
+			print 'invalid argument'
+		
+	except:
+		if len(sys.argv)>1:
+			print '\nusage:\n\t', 'python FSMD.py <arg1> <arg2>\n\n','>>> if batch downloading, arg1 = -b and arg2 = path of .csv\n', '>>> for single file download no argument required, simply run python FSMD.py'
+		else:
+			title = raw_input('Enter song title:\n>>> ')
+			artist = raw_input('Enter artist name:\n>>> ')
+			album = raw_input('Enter album name:\n>>> ')
+			keyword = title + ' @' + artist + ' @' + album
+			execute(keyword)
+	
+	#user input for song to download
+	
+
+	#function calls
+	
+
