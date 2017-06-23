@@ -68,15 +68,12 @@ class MyLogger(object):
 def my_hook(d):
 	global filename
 	if d['status'] == 'finished':
-		print "d['filename']",d['filename']
-		print filename[-4:]
 		if d['filename'][-4:] == 'webm':
 		# global filename
 			filename = d['filename'][:-4]+'mp3'
 		elif d['filename'][-4:] == '.m4a':
 		# global filename
 			filename = d['filename'][:-3]+'mp3'
-		print filename
 		print 'download complete, now downloading album art'
 	else:
 		print (d['downloaded_bytes']*100)//d['total_bytes'],'%','\t','eta:',d['eta'],'sec'
