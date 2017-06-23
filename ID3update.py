@@ -9,17 +9,19 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 class Song:
-	def __init__(self, keyword, filename, albumart, aaformat):
+	def __init__(self, keyword, filename, albumart, aaformat, dd='downloadedSongs/'):
 		self.info = keyword.split('@')
 		self.filename = filename.encode('utf-8')
+		print 'self.filename ',self.filename
 		self.keyword = urllib2.quote(('').join(self.info))
 		self.albumart = albumart
 		self.aaformat = aaformat
 		self.album = 'Single'
-		self.artist = self.info[2]
+		self.artist = self.info[1]
 		self.title = self.info[0]
 		self.feat = ' '
 		self.genre = 'Unknown'
+		self.dd = dd
 		self.fetchID3()
 
 	def fetchID3(self):
@@ -27,7 +29,6 @@ class Song:
 		browser.set_handle_robots(False)
 		browser.addheaders = [('User-agent','Mozilla')]
 		searchURL = "https://www.google.co.in/search?site=imghp&source=hp&biw=1414&bih=709&q="+urllib2.quote(self.title+' '+self.artist+' song')
-		print searchURL
 		html = browser.open(searchURL)
 		soup = bs(html, 'html.parser')
 		
@@ -48,17 +49,8 @@ class Song:
 			else:
 				pass
 		self.fetchalbum()
-		# try:
-		# 	self.artist = id3[0].get_text()
-			
-		# except:
-		# 	print 'error updating artist name'
-
-		# try:
-		# 	self.album = id3[1].get_text()
-			
-		# except:
-		# 	print 'error updating album name'
+		
+		
 	def fetchalbum(self):
 		browser = mechanize.Browser()
 		browser.set_handle_robots(False)
@@ -101,10 +93,10 @@ class Song:
 		audiofile.tag.images.set(3, open(self.albumart,'rb').read(), 'image/'+self.aaformat)
 		audiofile.tag.save()
 		if not os.path.isfile('downloadedSongs/'+title+'.mp3'):
-			os.rename(self.filename, 'downloadedSongs/'+title+'.mp3')
+			os.rename(self.filename, self.dd+title+'.mp3')
 		else:
 			newTitle = raw_input('Similar file already exits, enter new file name: ')
-			os.rename(self.filename, 'downloadedSongs/'+newTitle+'.mp3')
+			os.rename(self.filename, self.dd+newTitle+'.mp3')
 		print 'update complete'
 		
 		os.remove(self.albumart)

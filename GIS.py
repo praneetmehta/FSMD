@@ -1,12 +1,10 @@
 import urllib2
-import urllib
 from bs4 import BeautifulSoup as bs
-import mechanize
 import os
 import imghdr
-import sys
 import requests
 import json
+import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -23,7 +21,7 @@ class AlbumArt:
 		'''fetches the google search images page 
 		with the given search keyword and parses it'''
 		header={'User-Agent':"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"}
-		searchURL = "https://www.google.co.in/search?q="+self.keyword+"&source=lnms&tbm=isch"
+		searchURL = "https://www.google.co.in/search?q="+self.keyword+"&source=lnms&tbm=isch&tbs=iar:s"
 		soup = bs(urllib2.urlopen(urllib2.Request(searchURL,headers=header)),'html.parser')
 		self.findImg(soup)
 
@@ -33,7 +31,7 @@ class AlbumArt:
 		 attempts or else if an error occurs switch to default image'''
 		imageindex = self.attemptcount
 		try:
-			print 'trying '+str(self.attemptcount)+' image'
+			print 'trying image link #'+str(self.attemptcount + 1)
 			if imageindex == 0:
 				self.linklist = soup.findAll(attrs={"class":"rg_meta"})
 			else:
