@@ -7,6 +7,7 @@ from GIS import AlbumArt as gimg #custom module for fetching album arts
 from ID3update import Song #custom module for fetchid metadata and updating the downloaded file
 import string
 import csv
+import time
 import os
 import sys
 reload(sys)
@@ -29,7 +30,7 @@ def search(keyword):
 def grabLinks(parsed):
 	del songs[:]
 	for vid in parsed.findAll(attrs={'class':'yt-uix-tile-link'}):
-		if vid.find_next_sibling('span').get_text() == ' - Playlist':
+		if vid.find_next_sibling('span').get_text() == ' - Playlist' or vid.find_next_sibling('span').get_text() == ' - Channel':
 			pass
 		else:
 			songs.append({'title':vid['title'], 'link':vid['href']})
@@ -121,6 +122,7 @@ def execute(keyword, extra=''):
 		aapath = downloadAart(keyword)
 		imgFormat = aapath.split('.')[-1]
 		update(string.capwords(keyword), filename, aapath, imgFormat, downloadDirectory)
+		time.sleep(1)
 	except KeyboardInterrupt:
 		print '\nKeyboard Interrupt. Now exiting'
 		print "\nGood Bye :')"
