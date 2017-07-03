@@ -26,3 +26,8 @@
 - Install the modules
 
   `sudo -H pip install <module name>`
+
+# Future Plans
+ - GUI
+ - A Way to automatically identify title
+ - More download modes and alternative actions
