@@ -29,48 +29,43 @@ class AlbumArt:
 	def findImg(self, soup):
 		'''attempts to find the image link one by one for five
 		 attempts or else if an error occurs switch to default image'''
-		imageindex = self.attemptcount
-		try:
-			print 'trying image link #'+str(self.attemptcount + 1)
-			if imageindex == 0:
-				self.linklist = soup.findAll(attrs={"class":"rg_meta"})
-			else:
-				pass
-			a = self.linklist[imageindex]
-			self.link =json.loads(a.text)["ou"]
-		except:
-			self.link = self.defaultlink
-		# if attemptcount = 0 download is called from the main script or else it has to invoked from here
-		if(self.attemptcount == 0):
-			pass
-		else:
-			self.download()
+		self.linklist = soup.findAll(attrs={"class":"rg_meta"})
+		# a = self.linklist[imageindex]
+		# self.link =json.loads(a.text)["ou"]
+		# except:
+		# 	self.link = self.defaultlink
+		# # if attemptcount = 0 download is called from the main script or else it has to invoked from here
+		# if(self.attemptcount == 0):
+		# 	pass
+		# else:
+		# 	self.download()
 
 
 	def download(self):
 		'''downloads the image'''
-		r = requests.get(self.link)
-		if r.status_code == 200:
-			pass
-		else:
-			print 'image download error, downloading default album art'
-			self.link = self.defaultlink
+		for i in enumerate(self.linklist):
+			self.link =json.loads(i[1].text)["ou"]
 			r = requests.get(self.link)
+			print('trying image #{}'.format(i[0]))
+			if(r.status_code == 200):
+				break
+			elif i[0] > 4:
+				self.link = self.defaultlink
+				break
+			else:
+				pass
+
 		with open(urllib2.unquote(self.keyword), 'w+') as outfile:
-		    outfile.write(r.content)
+			outfile.write(r.content)
 		print 'album art download complete'
 		self.imgFormat = imghdr.what(urllib2.unquote(self.keyword))
 		if self.imgFormat is not None:
 			aaformat = self.attachFormat()
 			return aaformat
 		else:
-			os.remove(urllib2.unquote(self.keyword))
-			self.attemptcount += 1
-			if self.attemptcount < 5:
-				self.findImg(' ')
-			else:
-				self.link = self.defaultlink
-				self.download()
+			print('Network Error')
+			sys.exit()
+			
 
 		
 	def attachFormat(self):
