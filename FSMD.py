@@ -53,7 +53,7 @@ def showSearchResults():
 	
 
 #youtube-dl logger
-class MyLogger(object):
+class dl_logger(object):
     def debug(self, msg):
         pass
 
@@ -66,7 +66,7 @@ class MyLogger(object):
 
 
 #youtube-dl progress-hook
-def my_hook(d):
+def prog_hook(d):
 	global filename
 	if d['status'] == 'finished':
 		if d['filename'][-4:] == 'webm':
@@ -89,8 +89,8 @@ ydl_opts = {
 				        'preferredcodec': 'mp3',
 				        'preferredquality': '192',
 				    }],
-				'logger': MyLogger(),
-				'progress_hooks': [my_hook],
+				'logger': dl_logger(),
+				'progress_hooks': [prog_hook],
 				'prefer_insecure':True
 			}
 
@@ -114,21 +114,22 @@ def update(keyword, filename, aapath, imgFormat, dd):
 	newSong.updateID3();
 
 def execute(keyword, extra=''):
-	try:
-		parsed = search(keyword+extra)
-		grabLinks(parsed)
-		index = showSearchResults()
-		downloadSong(index)
-		aapath = downloadAart(keyword)
-		imgFormat = aapath.split('.')[-1]
-		update(string.capwords(keyword), filename, aapath, imgFormat, downloadDirectory)
-		time.sleep(1)
-	except KeyboardInterrupt:
-		print '\nKeyboard Interrupt. Now exiting'
-		print "\nGood Bye :')"
-		sys.exit()
-	except:
-		print '\nSome unexpected error occured, Pleej try again :P'
+	parsed = search(keyword+extra)
+	grabLinks(parsed)
+	index = showSearchResults()
+	downloadSong(index)
+	aapath = downloadAart(keyword)
+	imgFormat = aapath.split('.')[-1]
+	update(string.capwords(keyword), filename, aapath, imgFormat, downloadDirectory)
+	time.sleep(1)
+	# try:
+		
+	# except KeyboardInterrupt:
+	# 	print '\nKeyboard Interrupt. Now exiting'
+	# 	print "\nGood Bye :')"
+	# 	sys.exit()
+	# except:
+	# 	print '\nSome unexpected error occured, Pleej try again :P'
 
 if __name__ == '__main__':
 	execType = '-d'
