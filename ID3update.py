@@ -5,6 +5,7 @@ import os
 from bs4 import BeautifulSoup as bs
 import unicodedata as ud
 import sys
+import string
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -60,7 +61,11 @@ class Song:
 		for i in soup.findAll(attrs={'class':'_B5d'}):
 			if self.album == 'Single':
 				self.album = i.get_text()
+				print self.album
 			break
+		if self.album == 'Single':
+			if not self.info[2].isspace():
+				self.album = string.capwords(self.info[2])
 
 	def updateID3(self):		
 		audiofile = eyed3.load(self.filename)
@@ -96,7 +101,7 @@ class Song:
 		else:
 			newTitle = raw_input('Similar file already exits, enter new file name: ')
 			os.rename(self.filename, self.dd+newTitle.rstrip()+'.mp3')
-		print 'update complete\n\n'
+		print 'update complete'
 		
 		os.remove(self.albumart)
 # newsong = Song('Rockabye','Rockabye.mp3', 'rockabye','rockabye   album art.jpeg','jpeg')
