@@ -10,6 +10,9 @@ import csv
 import time
 import os
 import sys
+import progressBar
+pb = progressBar.progressor('linear')
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -17,7 +20,6 @@ sys.setdefaultencoding('utf8')
 
 #searching youtube for song
 def search(keyword):
-	print 'search keyword --- ', keyword
 	search = urllib2.quote(('').join(keyword.split('@')))
 	url = "https://www.youtube.com/results?search_query="+search
 	response = urllib2.urlopen(url)
@@ -44,7 +46,7 @@ def showSearchResults():
 		index = 0
 		return index
 	elif execType == '-d':
-		for i in range(0, len(songs)):
+		for i in range(0, 10):
 			try:
 				print i+1,'- ',songs[i]['title']
 			except:
@@ -68,16 +70,21 @@ class dl_logger(object):
 #youtube-dl progress-hook
 def prog_hook(d):
 	global filename
+	global pb
 	if d['status'] == 'finished':
+		pb.stop()
 		if d['filename'][-4:] == 'webm':
 		# global filename
 			filename = d['filename'][:-4]+'mp3'
 		elif d['filename'][-4:] == '.m4a':
 		# global filename
 			filename = d['filename'][:-3]+'mp3'
-		print 'download complete, now downloading album art'
+		print('\n')
+		print 'download complete, now searching album art'
 	else:
-		print (d['downloaded_bytes']*100)//d['total_bytes'],'%','\t','eta:',d['eta'],'sec'
+		percent = (d['downloaded_bytes']*100)//d['total_bytes']
+		pb.update(percent, d['eta'])
+		sys.stdout.flush()
     
 
 
@@ -97,11 +104,14 @@ ydl_opts = {
 
 #youtube-dl download
 def downloadSong(i):
+	global pb
 	songObj = songs[i]
 	songLink = songObj['link']
 	songTitle = songObj['title']
 	with ydl.YoutubeDL(ydl_opts) as tube:
-	    tube.download(['http://www.youtube.com'+songLink])
+		pb.start()
+		tube.download(['http://www.youtube.com'+songLink])
+	
 
 #download album art
 def downloadAart(keyword):
@@ -114,24 +124,40 @@ def update(keyword, filename, aapath, imgFormat, dd):
 	newSong.updateID3();
 
 def execute(keyword, extra=''):
-	parsed = search(keyword+extra)
-	grabLinks(parsed)
-	index = showSearchResults()
-	downloadSong(index)
-	aapath = downloadAart(keyword)
-	imgFormat = aapath.split('.')[-1]
-	update(string.capwords(keyword), filename, aapath, imgFormat, downloadDirectory)
-	time.sleep(1)
-	# try:
-		
-	# except KeyboardInterrupt:
-	# 	print '\nKeyboard Interrupt. Now exiting'
-	# 	print "\nGood Bye :')"
-	# 	sys.exit()
-	# except:
-	# 	print '\nSome unexpected error occured, Pleej try again :P'
+	try:
+		parsed = search(keyword+extra)
+		grabLinks(parsed)
+		index = showSearchResults()
+		print('\n')
+		if execType == '-d':
+			clear = lambda: os.system('clear')
+			clear()
+		else:
+			pass
+		downloadSong(index)
+		aapath = downloadAart(keyword)
+		imgFormat = aapath.split('.')[-1]
+		update(string.capwords(keyword), filename, aapath, imgFormat, downloadDirectory)
+		return True
+	except KeyboardInterrupt:
+		print 'Keyboard Interrupt. Now exiting'
+		print "Good Bye :')"
+		global pb
+		pb.stop()
+		sys.exit()
+	except:
+		global pb
+		print '\nSome unexpected error occured, Pleej try again :P'
+		try:
+			pb.stop()
+		except:
+			pass
+		return False
 
 if __name__ == '__main__':
+	print('FSMD v2')
+	print('Author: Paneer\n')
+	time.sleep(1.5)
 	execType = '-d'
 	songs = []
 	batch = []
