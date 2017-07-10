@@ -29,5 +29,6 @@
 
 # Future Plans
  - GUI
+ - Multithreading support for tasks like music download and album art download
  - A Way to automatically identify title
  - More download modes and alternative actions
