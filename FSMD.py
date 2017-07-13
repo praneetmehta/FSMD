@@ -124,14 +124,18 @@ def update(keyword, filename, aapath, imgFormat, dd):
 	newSong.updateID3();
 
 def execute(keyword, extra=''):
+	global pb
 	try:
 		parsed = search(keyword+extra)
 		grabLinks(parsed)
 		index = showSearchResults()
 		print('\n')
 		if execType == '-d':
-			clear = lambda: os.system('clear')
-			clear()
+			try:
+				clear = lambda: os.system('clear')
+				clear()
+			except:
+				pass
 		else:
 			pass
 		downloadSong(index)
@@ -142,11 +146,9 @@ def execute(keyword, extra=''):
 	except KeyboardInterrupt:
 		print 'Keyboard Interrupt. Now exiting'
 		print "Good Bye :')"
-		global pb
 		pb.stop()
 		sys.exit()
 	except:
-		global pb
 		print '\nSome unexpected error occured, Pleej try again :P'
 		try:
 			pb.stop()
