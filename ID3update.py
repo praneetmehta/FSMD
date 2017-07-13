@@ -52,6 +52,7 @@ class Song:
 		
 		
 	def fetchalbum(self):
+		print 'self.album at start',self.album
 		browser = mechanize.Browser()
 		browser.set_handle_robots(False)
 		browser.addheaders = [('User-agent','Mozilla')]
@@ -64,8 +65,9 @@ class Song:
 				print self.album
 			break
 		if self.album == 'Single':
-			if not self.info[2].isspace():
+			if not self.info[2].isspace() and self.info[2] != '':
 				self.album = string.capwords(self.info[2])
+		print 'album', self.album
 
 	def updateID3(self):		
 		audiofile = eyed3.load(self.filename)
@@ -83,7 +85,7 @@ class Song:
 		if self.feat == ' ':
 			title = self.title
 		else:
-			title = self.title+' feat. '+self.feat
+			title = self.title+' ft. '+self.feat
 		try:
 			audiofile.tag.title = unicode(title, "utf-8")
 		except:
