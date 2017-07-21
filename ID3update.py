@@ -16,8 +16,8 @@ class Song:
 		self.keyword = urllib2.quote(('').join(self.info))
 		self.albumart = albumart
 		self.aaformat = aaformat
-		self.album = 'Single'
-		self.artist = self.info[1]
+		self.album = ''
+		self.artist = string.capwords(self.info[1])
 		self.title = self.info[0]
 		self.feat = ' '
 		self.genre = 'Unknown'
@@ -52,7 +52,6 @@ class Song:
 		
 		
 	def fetchalbum(self):
-		print 'self.album at start',self.album
 		browser = mechanize.Browser()
 		browser.set_handle_robots(False)
 		browser.addheaders = [('User-agent','Mozilla')]
@@ -60,14 +59,16 @@ class Song:
 		html = browser.open(searchURL)
 		soup = bs(html, 'html.parser')
 		for i in soup.findAll(attrs={'class':'_B5d'}):
-			if self.album == 'Single':
+			if self.album == '':
 				self.album = i.get_text()
 				print self.album
 			break
-		if self.album == 'Single':
+		if self.album == '':
 			if not self.info[2].isspace() and self.info[2] != '':
 				self.album = string.capwords(self.info[2])
-		print 'album', self.album
+			else:
+				self.album = self.title + '- Single'
+			print 'album', self.album
 
 	def updateID3(self):		
 		audiofile = eyed3.load(self.filename)
