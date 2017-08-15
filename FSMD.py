@@ -5,18 +5,21 @@ from bs4 import BeautifulSoup as bs #module for parsing html
 import youtube_dl as ydl #youtube_dl for downloading youtube videos and mp3
 from GIS import AlbumArt as gimg #custom module for fetching album arts
 from ID3update import Song #custom module for fetchid metadata and updating the downloaded file
+from gui import *
 import string
 import csv
 import time
 import os
 import sys
 import progressBar
+
 pb = progressBar.progressor('linear')
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 
+downloadDirectory = '/home/praneet/Music/'
 
 #searching youtube for song
 def search(keyword):
@@ -80,7 +83,7 @@ def prog_hook(d):
 		# global filename
 			filename = d['filename'][:-3]+'mp3'
 		print('\n')
-		print 'download complete, now searching album art'
+		print 'download complete'
 	else:
 		percent = (d['downloaded_bytes']*100)//d['total_bytes']
 		pb.update(percent, d['eta'])
@@ -96,6 +99,7 @@ ydl_opts = {
 				        'preferredcodec': 'mp3',
 				        'preferredquality': '192',
 				    }],
+				'outtmpl': downloadDirectory+'%(title)s.%(ext)s',
 				'logger': dl_logger(),
 				'progress_hooks': [prog_hook],
 				'prefer_insecure':True
@@ -114,8 +118,8 @@ def downloadSong(i):
 	
 
 #download album art
-def downloadAart(keyword):
-	newImg = gimg(keyword)
+def downloadAart(keyword, downloadDirectory):
+	newImg = gimg(keyword, downloadDirectory)
 	aapath = newImg.download()
 	return aapath
 
@@ -123,7 +127,7 @@ def update(keyword, filename, aapath, imgFormat, dd):
 	newSong = Song(keyword, filename, aapath, imgFormat, dd)
 	newSong.updateID3();
 
-def execute(keyword, extra=''):
+def execute(keyword, downloadDirectory, extra=''):
 	global pb
 	try:
 		parsed = search(keyword+extra)
@@ -139,7 +143,7 @@ def execute(keyword, extra=''):
 		else:
 			pass
 		downloadSong(index)
-		aapath = downloadAart(keyword)
+		aapath = downloadAart(keyword, downloadDirectory)
 		imgFormat = aapath.split('.')[-1]
 		update(string.capwords(keyword), filename, aapath, imgFormat, downloadDirectory)
 		return True
@@ -149,7 +153,7 @@ def execute(keyword, extra=''):
 		pb.stop()
 		sys.exit()
 	except:
-		print '\nSome unexpected error occured, Pleej try again :P'
+		print '\nSome unexpected error occured, Please try again :P'
 		try:
 			pb.stop()
 		except:
@@ -164,7 +168,7 @@ if __name__ == '__main__':
 	songs = []
 	batch = []
 	filename = 'Unknown'
-	downloadDirectory = 'downloadedSongs/'
+	downloadDirectory = '/home/praneet/Music/'
 
 	try:
 		execType = sys.argv[1]
@@ -177,7 +181,7 @@ if __name__ == '__main__':
 						batch.append(row['Title'] + ' @' + row['Artist'] + ' @' + row['Album'])
 				for batchitem in batch:
 					print 'batchitem --- '+batchitem
-					execute(batchitem, ' official audio')
+					execute(batchitem, downloadDirectory, ' official audio')
 			else:
 				print 'csv '+ batchCSV +' does not exist'
 			# print batchlist.types
@@ -192,7 +196,7 @@ if __name__ == '__main__':
 			artist = raw_input('Enter artist name:\n>>> ')
 			album = raw_input('Enter album name:\n>>> ')
 			keyword = title + ' @' + artist + ' @' + album
-			execute(keyword)
+			execute(keyword, downloadDirectory)
 	
 	#user input for song to download
 	

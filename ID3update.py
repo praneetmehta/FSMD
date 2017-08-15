@@ -10,9 +10,9 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 class Song:
-	def __init__(self, keyword, filename, albumart, aaformat, dd='downloadedSongs/'):
+	def __init__(self, keyword, filename, albumart, aaformat, dd='/home/praneet/Music/'):
 		self.info = keyword.split('@')
-		self.filename = filename.encode('utf-8')
+		self.filename = os.path.join(dd, filename).encode('utf-8')
 		self.keyword = urllib2.quote(('').join(self.info))
 		self.albumart = albumart
 		self.aaformat = aaformat
@@ -99,7 +99,7 @@ class Song:
 
 		audiofile.tag.images.set(3, open(self.albumart,'rb').read(), 'image/'+self.aaformat)
 		audiofile.tag.save()
-		if not os.path.isfile('downloadedSongs/'+title+'.mp3'):
+		if not os.path.isfile(self.dd+title+'.mp3'):
 			os.rename(self.filename, self.dd+title.rstrip()+'.mp3')
 		else:
 			newTitle = raw_input('Similar file already exits, enter new file name: ')
