@@ -19,7 +19,6 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-downloadDirectory = '/home/praneet/Music/'
 
 #searching youtube for song
 def search(keyword):
@@ -91,21 +90,6 @@ def prog_hook(d):
     
 
 
-#youtube-dl options object
-ydl_opts = {	
-				'format': 'bestaudio/best',
-				    'postprocessors': [{
-				        'key': 'FFmpegExtractAudio',
-				        'preferredcodec': 'mp3',
-				        'preferredquality': '192',
-				    }],
-				'outtmpl': downloadDirectory+'%(title)s.%(ext)s',
-				'logger': dl_logger(),
-				'progress_hooks': [prog_hook],
-				'prefer_insecure':True
-			}
-
-
 #youtube-dl download
 def downloadSong(i):
 	global pb
@@ -169,6 +153,20 @@ if __name__ == '__main__':
 	batch = []
 	filename = 'Unknown'
 	downloadDirectory = '/home/praneet/Music/'
+
+	#youtube-dl options object
+	ydl_opts = {	
+					'format': 'bestaudio/best',
+					    'postprocessors': [{
+					        'key': 'FFmpegExtractAudio',
+					        'preferredcodec': 'mp3',
+					        'preferredquality': '192',
+					    }],
+					'outtmpl': downloadDirectory+'%(title)s.%(ext)s',
+					'logger': dl_logger(),
+					'progress_hooks': [prog_hook],
+					'prefer_insecure':True
+				}
 
 	try:
 		execType = sys.argv[1]
